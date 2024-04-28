@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using securityApp.Interfaces.VirusTotalInterfaces;
 using securityApp.Interfaces.IHybridAnalysesRepository;
+using System.Runtime.CompilerServices;
 
 
 namespace securityApp.Controllers
@@ -18,6 +19,7 @@ namespace securityApp.Controllers
         private readonly IVirusTotalLinkRepository _linkRepository;
         private readonly IHybridLinkRepository _hybridLinkRepository;
         private readonly Encoder _encoder;
+        private string _sha256;  
 
 
         public LinkController(VirusTotalSettings virusTotalSettings, IVirusTotalLinkRepository linkRepository,
@@ -31,41 +33,44 @@ namespace securityApp.Controllers
 
 
         [HttpPost]
-        [Route("SendLink")]
-        public async Task<IActionResult> SendLink(string link)
+        [Route("Vt-SendLink")]
+        public async Task<IActionResult> SendVtLink(string link)
         {
             var result = await _linkRepository.PostUrlScanAsync(link);
             return Ok();
         }
 
         [HttpGet]
-        [Route("GetLinkResult")]
-        public async Task<IActionResult> GetLinkResult(string link)
+        [Route("Vt-GetLinkResult")]
+        public async Task<IActionResult> GetVtLinkResult(string link)
         {
             var encodedUrl = _encoder.EncodeUrlToBase64(link);
             var response = await _linkRepository.GetUrlScanResultAsync(encodedUrl);
-            Console.WriteLine(response.Content);
+            //Console.WriteLine(response.Content);
             return Ok(response.Content);
 
         }
 
         [HttpPost]
-        [Route("PostHybridLink")]
+        [Route("Ha-SendLink")]
 
         public async Task<IActionResult> PostHybridLink(string link)
         {
-            var result = _hybridLinkRepository.PostUrlAsync(link);
-            return Ok(result);
+            var result = await _hybridLinkRepository.PostUrlAsync(link);
+            //JObject content = Json.Parse(result.Content);
+            //if (content["finished"])
+            return Ok(result.Content);
         }
 
         [HttpGet]
-        [Route("GetHybridLinkResult")]
+        [Route("Ha-GetLinkResult")]
 
         public async Task<IActionResult> GetHybridLinkResult(string link)
-        {
-            var encodedLink = _encoder.LinkToSha256(link);
-            var response = _hybridLinkRepository.GetUrlResultAsync(encodedLink);
-            return Ok(response);
+        {   
+            var encodedUrl = _encoder.LinkToSha256(link);
+            Console.WriteLine(encodedUrl);
+            var response = await _hybridLinkRepository.GetUrlResultAsync(encodedUrl);
+            return Ok(response.Content);
         }
     }
 }

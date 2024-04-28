@@ -4,6 +4,9 @@ using securityApp.Helper;
 using securityApp.Interfaces.IHybridAnalysesRepository;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using System.Runtime.Intrinsics.Arm;
+
 
 namespace securityApp.Repositories.HybridAnalysesRepository
 {
@@ -17,8 +20,8 @@ namespace securityApp.Repositories.HybridAnalysesRepository
         }
         public async Task<RestResponse> GetUrlResultAsync(string encodedUrl)
         {
-            Console.WriteLine($"{_hybridAnalysisSettings.OverviewUrl}{encodedUrl}");
-            var options = new RestClientOptions($"{_hybridAnalysisSettings.OverviewUrl}{encodedUrl}");
+            Console.WriteLine($"{_hybridAnalysisSettings.OverviewSha}{encodedUrl}");
+            var options = new RestClientOptions($"{_hybridAnalysisSettings.OverviewSha}{encodedUrl}");
             var client = new RestClient(options);
             var request = new RestRequest("");
             request.AddHeader("accept", "application/json");
@@ -31,7 +34,32 @@ namespace securityApp.Repositories.HybridAnalysesRepository
 
         public async Task<RestResponse> PostUrlAsync(string url)
         {
-            return null;
+
+            Console.WriteLine($"{_hybridAnalysisSettings.QuickScanUrl}");
+            var options = new RestClientOptions(_hybridAnalysisSettings.QuickScanUrl);
+            var client = new RestClient(options);
+            var request = new RestRequest("");
+            request.AddHeader("accept", "application/json");
+            request.AddHeader("api-key", _hybridAnalysisSettings.ApiKey);
+            request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+            Console.WriteLine(url);
+            request.AddBody($"scan_type=all&url={url}&comment=&submit_name=");
+
+            var response = await client.PostAsync(request); 
+            Console.WriteLine(response.Content);
+            
+            var encodedUrl = GetShaFromResponse(response);
+            var result = await GetUrlResultAsync(encodedUrl);
+            return result;
+            //Console.WriteLine(response.Content);
+           
+        }
+
+        public string GetShaFromResponse(RestResponse response)
+        {
+            string sha = JObject.Parse(response.Content)["sha256"].ToString();
+            return sha;
+
         }
     }
 }

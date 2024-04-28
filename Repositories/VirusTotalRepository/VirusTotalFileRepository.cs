@@ -62,7 +62,7 @@ namespace securityApp.Repositories.VirusTotalRepository
 
             var filePath = Path.Combine(_fileHandler.folderPath, file.FileName);
             _fileHandler.CreateFile(file);
-
+            
             Console.WriteLine(filePath);
            
             var options = new RestClientOptions(_totalSettings.FileLink);
@@ -77,7 +77,7 @@ namespace securityApp.Repositories.VirusTotalRepository
             request.AddFile("file", filePath, file.ContentType);
             var response = await client.PostAsync(request);
             Console.WriteLine("{0}", response.Content);
-            File.Delete(filePath);
+            
             return response;
         }
 

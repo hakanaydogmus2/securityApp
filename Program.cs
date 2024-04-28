@@ -1,9 +1,11 @@
 using securityApp.Helper;
 using securityApp.Interfaces.AbuseIpDbInterfaces;
 using securityApp.Interfaces.IHybridAnalysesRepository;
+using securityApp.Interfaces.IHybridAnalysisRepository;
 using securityApp.Interfaces.VirusTotalInterfaces;
 using securityApp.Repositories.AbuseIpDbRepository;
 using securityApp.Repositories.HybridAnalysesRepository;
+using securityApp.Repositories.HybridAnalysisRepository;
 using securityApp.Repositories.VirusTotalRepository;
 
 var SpecificOrigins = "AllowSpecificOrigin";
@@ -17,6 +19,7 @@ builder.Services.AddScoped<IVirusTotalFileRepository, VirusTotalFileRepository>(
 builder.Services.AddScoped<IVirusTotalIpAddressRepository, VirusTotalIpAddressRepository>();
 builder.Services.AddScoped<IAbuseIpDbIpRepository, AbuseIpDbIpRepository>();
 builder.Services.AddScoped<IHybridLinkRepository, HybridLinkRepository>();
+builder.Services.AddScoped<IHybridFileRepository, HybridFileRepository>();
 
 builder.Services.AddSingleton<HybridAnalysisSettings>(); 
 builder.Services.AddSingleton<VirusTotalSettings>();
@@ -40,7 +43,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 
-//Configure the HTTP request pipeline.
+////Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
 //    app.UseSwagger();

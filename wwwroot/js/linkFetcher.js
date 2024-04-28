@@ -1,6 +1,10 @@
 ﻿
-const SendLinkuri = "http://localhost:5090/Link/SendLink?link=";
 
+const vtSendLinkUri = "http://localhost:5090/Link/Vt-SendLink?link=";
+const vtGetLinkUri = "http://localhost:5090/Link/Vt-GetLinkResult?link=";
+const haSendLinkUri = "http://localhost:5090/Link/Ha-SendLink?link=";
+const haGetLinkUri = "http://localhost:5090/Link/Ha-GetLinkResult?link=";
+let haResponse;
 const linkInput = document.getElementById("linkInput");
 linkInput.addEventListener("keyup", function (event) {
     if (event.key === "Enter") {
@@ -8,9 +12,106 @@ linkInput.addEventListener("keyup", function (event) {
     }
 })
 async function sendLink() {
-    startLinkSpinnerAnimation();
     const link = document.getElementById("linkInput").value;
-    const uri = `http://localhost:5090/Link/SendLink?link=${link}`;
+    startLinkSpinnerAnimation();
+    let vtResponse = await sendVtLink(link);
+    try {
+        haResponse = await sendHaLink(link);
+        console.log(haResponse);
+;
+    } catch (ex){
+        console.log(ex);
+    }
+    //let haResponse = await sendHaLink(link);
+    
+
+    console.log(vtResponse.status);
+    //console.log(haResponse.status);
+    if (vtResponse.ok) {
+
+        getLinkResult(link);
+
+    } else {
+        stopLinkSpinnerAnimation();
+        console.error("errrokee");
+        document.getElementById("VT-link-result").innerText = "something went wrong";
+    }
+}
+
+async function getLinkResult(link) {
+    console.log("grdi");
+    const response = await getVtLinkResult(link);
+    console.log(response.status);
+    if (response.ok) {
+
+        const data = await response.json();
+        console.log(data);
+        stopLinkSpinnerAnimation();
+        showLinkResults(data,haResponse);
+
+    }
+    else if (response.status === 404) {
+        stopLinkSpinnerAnimation();
+        document.getElementById("VT-link-result").innerText = "Link not found";
+    }
+    else {
+        stopLinkSpinnerAnimation();
+        document.getElementById("VT-link-result").innerText = "something went wrong";
+    }
+}
+async function showLinkResults(vtData, haData) {
+
+    console.log(haData);
+    const vtLastAnalysisStats = vtData.data.attributes.last_analysis_stats;
+    const haAnalysisStats = haData.scanners_v2.bfore_ai;
+    let haPlaceOfResults = document.getElementById("HA-link-result");
+    let vtPlaceOfResults = document.getElementById("VT-link-result");
+    vtPlaceOfResults.innerHTML = "";
+    vtPlaceOfResults.innerHTML += "<h5> Scanning Results </h5>"
+
+ 
+
+    for (var item in vtLastAnalysisStats) {
+        vtPlaceOfResults.innerHTML += "<li>" + item + ": " + vtLastAnalysisStats[item] + "</li>";
+    }
+
+    haPlaceOfResults.innerHTML = "";
+    haPlaceOfResults.innerHTML += "<h5> Scanning Results </h5>"
+
+    for(var item in haAnalysisStats) {
+        haPlaceOfResults.innerHTML += "<li>" + item + ": " + haAnalysisStats[item].result + "</li>";
+    }
+
+    if (vtLastAnalysisStats.suspicious > 0 || vtLastAnalysisStats.malicious > 0) {
+        console.log("danger");
+    }
+    else {
+        console.log("ok");
+    }
+}
+
+async function sendHaLink(link) {
+    
+    const uri = `${haSendLinkUri}${link}`;
+    const response = await fetch(uri, {
+        //mode:'no-cors',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            link: link
+        })
+    });
+    let data = await response.json();
+    console.log(data);
+    return data;
+    
+}
+
+async function sendVtLink(link) {
+    
+    const uri = `${vtSendLinkUri}${link}`;
     console.log(link);
     console.log(uri);
 
@@ -25,64 +126,22 @@ async function sendLink() {
         })
     });
 
-    console.log(response.status);
-    if (response.ok) {
-
-        getLinkResult(link);
-
-    } else {
-        stopLinkSpinnerAnimation();
-        console.error("errrokee");
-        document.getElementById("VT-link-result").innerText = "something went wrong";
-    }
+    return response;
 }
 
-async function getLinkResult(link) {
-    console.log("grdi");
-    const response = await fetch(`http://localhost:5090/Link/GetLinkResult?link=${encodeURIComponent(link)}`, {
+async function getVtLinkResult(link) {
+    const response = await fetch(`${vtGetLinkUri}${encodeURIComponent(link)}`, {
         //mode: 'no-cors'
     });
-    console.log(response.status);
-    if (response.ok) {
-
-        const data = await response.json();
-        console.log(data);
-        stopLinkSpinnerAnimation();
-        showLinkResults(data);
-
-    }
-    else if (response.status === 404) {
-        stopLinkSpinnerAnimation();
-        document.getElementById("VT-link-result").innerText = "Link not found";
-    }
-    else {
-        stopLinkSpinnerAnimation();
-        document.getElementById("VT-link-result").innerText = "something went wrong";
-    }
+    return response;
 }
-async function showLinkResults(data) {
+
+async function getHaLinkResult(link) {
+    const response = await fetch(`${haGetLinkUri}${encodeURIComponent(link)}`, {
+        //mode: 'no-cors'
+    });
+    const data = response.json();
+
     console.log(data);
-    const lastAnalysisResults = data.data.attributes.last_analysis_results;
-    console.log(typeof (lastAnalysisResults));
-    const lastAnalysisStats = data.data.attributes.last_analysis_stats;
-    console.log(lastAnalysisStats);
-
-
-    let placeOfResults = document.getElementById("VT-link-result");
-    placeOfResults.innerHTML = "";
-    placeOfResults.innerHTML += "<h5> Scanning Results </h5>"
- 
-
-    for (var item in lastAnalysisStats) {
-        placeOfResults.innerHTML += "<li>" + item + ": " + lastAnalysisStats[item] + "</li>";
-    }
-
-
-
-    if (lastAnalysisStats.suspicious > 0 || lastAnalysisStats.malicious > 0) {
-        console.log("danger");
-    }
-    else {
-        console.log("ok");
-    }
+    return response;
 }

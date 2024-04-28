@@ -94,20 +94,26 @@
 }
 #ipResult,
 #linkResult {
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 200px;
     width: 250px;
     border: 3px dashed blue;
+    flex-wrap: nowrap;
+    overflow-y: scroll;
+    
+}
+AbuseIp-result-container,
+#VT-ip-result-container {
+    height: auto;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-#VT-ip-result-container{
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: column;
-}
 
 .fileSpinner,
 .linkSpinner,
@@ -120,6 +126,7 @@
     animation: spin 1s linear infinite;
     display: none;
     transform-origin = center;
+
 }
 
 
