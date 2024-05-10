@@ -64,19 +64,19 @@ async function showLinkResults(vtData, haData) {
     console.log(haData);
     const vtLastAnalysisStats = vtData.data.attributes.last_analysis_stats;
     const haAnalysisStats = haData.scanners_v2.bfore_ai;
+    let linkResultPlace = document.getElementById("linkResult");
+    linkResultPlace.style.justifyContent = "flex-start";
     let haPlaceOfResults = document.getElementById("HA-link-result");
     let vtPlaceOfResults = document.getElementById("VT-link-result");
     vtPlaceOfResults.innerHTML = "";
-    vtPlaceOfResults.innerHTML += "<h5> Scanning Results </h5>"
-
- 
+    vtPlaceOfResults.innerHTML += "<h5> Virus-Total </h5>"
 
     for (var item in vtLastAnalysisStats) {
         vtPlaceOfResults.innerHTML += "<li>" + item + ": " + vtLastAnalysisStats[item] + "</li>";
     }
 
     haPlaceOfResults.innerHTML = "";
-    haPlaceOfResults.innerHTML += "<h5> Scanning Results </h5>"
+    haPlaceOfResults.innerHTML += "<h5> Hybrid-Analysis </h5>"
 
     for(var item in haAnalysisStats) {
         haPlaceOfResults.innerHTML += "<li>" + item + ": " + haAnalysisStats[item].result + "</li>";

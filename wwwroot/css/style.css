@@ -105,7 +105,18 @@
     overflow-y: scroll;
     
 }
-AbuseIp-result-container,
+
+#VT-link-result,
+#HA-link-result {
+    height: auto;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+#AbuseIp-result-container,
 #VT-ip-result-container {
     height: auto;
     width: auto;

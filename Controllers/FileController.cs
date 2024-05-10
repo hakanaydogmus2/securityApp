@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using securityApp.Data;
 using securityApp.Helper;
 using securityApp.Interfaces.IHybridAnalysisRepository;
 using securityApp.Interfaces.VirusTotalInterfaces;
+using securityApp.Models;
 using System.Data;
 
 
@@ -18,13 +21,15 @@ namespace securityApp.Controllers
         private readonly IVirusTotalFileRepository _virusTotalFileRepository;
         private readonly Encoder _encoder;
         private readonly VirusTotalSettings _virusTotalSettings;
+        private readonly DataContext _context;
 
-        public FileController(IVirusTotalFileRepository fileRepository, Encoder encoder, VirusTotalSettings virusTotalSettings, IHybridFileRepository hybridFileRepository)
+        public FileController(IVirusTotalFileRepository fileRepository, Encoder encoder, VirusTotalSettings virusTotalSettings, IHybridFileRepository hybridFileRepository, DataContext dataContext)
         {
             _encoder = encoder;
             _virusTotalFileRepository = fileRepository;
             _hybridFileRepository = hybridFileRepository;
             _virusTotalSettings = virusTotalSettings;
+            _context = dataContext;
         }
         [HttpPost]
         [Route("VT-UploadFile")]
@@ -64,6 +69,23 @@ namespace securityApp.Controllers
         {
             var response = await _hybridFileRepository.GetFileReport(encodedFileSha);
             return Ok(response.Content);
+        }
+        [HttpPost]
+        [Route("PostFileResult")]
+
+        public IActionResult PostFileResult(Scan scan)
+        {
+            _context.Add(scan);
+            var saved = _context.SaveChanges();
+            return saved > 0 ? Ok() : BadRequest();     
+        }
+
+        [HttpGet]
+        [Route("GetFileResultCount")]
+        public IActionResult GetFileResultCount()
+        {
+            var count = _context.Scans.Count();
+            return Ok(count);
         }
     }
 }
