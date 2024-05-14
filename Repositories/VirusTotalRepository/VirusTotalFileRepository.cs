@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using RestSharp;
 using securityApp.Helper;
+using securityApp.Interfaces;
 using securityApp.Interfaces.VirusTotalInterfaces;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -16,12 +17,16 @@ namespace securityApp.Repositories.VirusTotalRepository
         private readonly VirusTotalSettings _totalSettings;
         private readonly Encoder _encoder;
         private readonly FileHandler _fileHandler;
+        private readonly IScanRepository _scanRepository;
+        private readonly ScanBuilder _scanBuilder;
 
-        public VirusTotalFileRepository(VirusTotalSettings virusTotalSettings, Encoder encoder, FileHandler fileHandler)
+        public VirusTotalFileRepository(VirusTotalSettings virusTotalSettings, Encoder encoder, FileHandler fileHandler, IScanRepository scanRepository, ScanBuilder scanBuilder)
         {
             _totalSettings = virusTotalSettings;
             _encoder = encoder;
             _fileHandler = fileHandler;
+            _scanRepository = scanRepository;
+            _scanBuilder = scanBuilder;
         }
         public async Task<RestResponse> GetFileResult(string fileSHA)
         {
@@ -54,6 +59,9 @@ namespace securityApp.Repositories.VirusTotalRepository
                     return await GetFileResult(fileSHA);
                 }
             }
+
+            var scan = _scanBuilder.CreateScan(response, fileSHA);
+            _scanRepository.AddScan(scan);
             return response;
         }
 
