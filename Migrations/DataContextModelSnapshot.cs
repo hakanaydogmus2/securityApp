@@ -29,6 +29,9 @@ namespace securityApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("isMalicious")
+                        .HasColumnType("bit");
+
                     b.Property<string>("result")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

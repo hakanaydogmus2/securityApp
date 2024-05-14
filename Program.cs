@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using securityApp.Data;
 using securityApp.Helper;
+using securityApp.Interfaces;
 using securityApp.Interfaces.AbuseIpDbInterfaces;
 using securityApp.Interfaces.IHybridAnalysesRepository;
 using securityApp.Interfaces.IHybridAnalysisRepository;
 using securityApp.Interfaces.VirusTotalInterfaces;
+using securityApp.Repositories;
 using securityApp.Repositories.AbuseIpDbRepository;
 using securityApp.Repositories.HybridAnalysesRepository;
 using securityApp.Repositories.HybridAnalysisRepository;
@@ -22,7 +24,9 @@ builder.Services.AddScoped<IVirusTotalIpAddressRepository, VirusTotalIpAddressRe
 builder.Services.AddScoped<IAbuseIpDbIpRepository, AbuseIpDbIpRepository>();
 builder.Services.AddScoped<IHybridLinkRepository, HybridLinkRepository>();
 builder.Services.AddScoped<IHybridFileRepository, HybridFileRepository>();
+builder.Services.AddScoped<IScanRepository, ScanRepository>();
 
+builder.Services.AddSingleton<ScanBuilder>();
 builder.Services.AddSingleton<HybridAnalysisSettings>(); 
 builder.Services.AddSingleton<VirusTotalSettings>();
 builder.Services.AddSingleton<Encoder>();

@@ -1,18 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using securityApp.Data;
 using securityApp.Helper;
+using securityApp.Interfaces;
 using securityApp.Interfaces.VirusTotalInterfaces;
+using securityApp.Models;
 
 namespace securityApp.Repositories.VirusTotalRepository
 {
     public class VirusTotalLinkRepository : IVirusTotalLinkRepository
     {
         private readonly VirusTotalSettings _totalSettings;
+        private readonly ScanBuilder _scanBuilder;
+        private readonly IScanRepository _scanRepository;
+        private readonly DataContext _context;
         private const string getLinkUri = "https://www.virustotal.com/api/v3/urls/";
-        public VirusTotalLinkRepository(VirusTotalSettings virusTotalSettings)
+        public VirusTotalLinkRepository(VirusTotalSettings virusTotalSettings, DataContext dataContext, IScanRepository scanRepository, ScanBuilder scanBuilder)
         {
             _totalSettings = virusTotalSettings;
+            _context = dataContext;
+            _scanRepository = scanRepository;
+            _scanBuilder = scanBuilder;
         }
 
         public async Task<RestResponse> GetUrlScanResultAsync(string encodedUrl)
@@ -40,6 +49,8 @@ namespace securityApp.Repositories.VirusTotalRepository
                 }
             }
 
+            var scan = _scanBuilder.CreateScan(response, encodedUrl);
+            _scanRepository.AddScan(scan);
             //Console.WriteLine(response.Content);
             return response;
         }

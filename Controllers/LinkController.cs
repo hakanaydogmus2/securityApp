@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RestSharp;
+using securityApp.Models;
 using securityApp.Helper;
+using securityApp.Controllers;
 using securityApp.Repositories;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -46,7 +48,7 @@ namespace securityApp.Controllers
         {
             var encodedUrl = _encoder.EncodeUrlToBase64(link);
             var response = await _linkRepository.GetUrlScanResultAsync(encodedUrl);
-            //Console.WriteLine(response.Content);
+
             return Ok(response.Content);
 
         }

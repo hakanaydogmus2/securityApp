@@ -11,8 +11,8 @@ using securityApp.Data;
 namespace securityApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240510104958_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240514071052_createInitial")]
+    partial class createInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,6 +31,9 @@ namespace securityApp.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("isMalicious")
+                        .HasColumnType("bit");
 
                     b.Property<string>("result")
                         .IsRequired()
